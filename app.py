@@ -4,9 +4,11 @@
 from flask import Flask, request, jsonify
 import pymongo
 from flask_pymongo import PyMongo
+from flask_cors import CORS, cross_origin
 import json
 
 app = Flask(__name__)
+cors = CORS(app)
 
 db_password = 'dancingb'
 db_name = 'meetings'
@@ -17,6 +19,7 @@ mongo = PyMongo(app)
 
 # On root request
 @app.route('/api', methods=['POST'])
+@cross_origin()
 def add_new_user():
 
     new_user = json.loads(request.data)
@@ -37,6 +40,7 @@ def add_new_user():
 
 
 @app.route('/api/<user_name>', methods=['GET', 'POST'])
+@cross_origin()
 def add_session(user_name):
     if(request.method == 'GET'):
         target_collection = mongo.db[user_name]
@@ -59,6 +63,7 @@ def add_session(user_name):
             return jsonify({"status": 400})
 
 @app.route('/api/<user_name>', methods=['DELETE'])
+@cross_origin()
 def delete_account(user_name):
     names = mongo.db.collection_names()
     userAlreadyExists = names.count(user_name) > 0
@@ -70,6 +75,7 @@ def delete_account(user_name):
 
 
 @app.route('/api/<user_name>/<session_name>', methods=['GET', 'PATCH'])
+@cross_origin()
 def get_session(user_name, session_name):
     if (request.method == 'GET'):
         target_collection = mongo.db[user_name]
@@ -94,19 +100,20 @@ def get_session(user_name, session_name):
 # def delete_session(user_name, session_name):
 
 
-@app.route('/api/<user_name>/<session_name>/<question_id>', methods=['PATCH'])
-def update_question(user_name, session_name, question_id):
-        new_answers = json.loads(request.data)
-        target_collection = mongo.db[user_name]
-        result = target_collection.update_one(
-            {
-                "user_name": user_name, 
-                "sessions.session_name": session_name,
-                "sessions.questions": question_id
-            },
-            {"$set": {"sessions.$.questions": new_answers}}
-        )
-        return jsonify({"Did work? ": result.modified_count})
+# @app.route('/api/<user_name>/<session_name>/<question_id>', methods=['PATCH'])
+# @cross_origin()
+# def update_question(user_name, session_name, question_id):
+#         new_answers = json.loads(request.data)
+#         target_collection = mongo.db[user_name]
+#         result = target_collection.update_one(
+#             {
+#                 "user_name": user_name, 
+#                 "sessions.session_name": session_name,
+#                 "sessions.questions": question_id
+#             },
+#             {"$set": {"sessions.$.questions": new_answers}}
+#         )
+#         return jsonify({"Did work? ": result.modified_count})
 
 
 

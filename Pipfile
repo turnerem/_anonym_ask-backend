@@ -12,6 +12,7 @@ bson = "*"
 flask-pymongo = "*"
 dnspython = "*"
 gunicorn = "*"
+flask-cors = "*"
 
 [requires]
 python_version = "3.7"
