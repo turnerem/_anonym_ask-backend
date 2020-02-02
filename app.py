@@ -110,7 +110,7 @@ def update_question(user_name, session_name, question_id):
 
 
 
-if __name__ == '__main__':
-    # threaded option to enable muptiple instances for multiple user access support (?!?!)
-    app.debug = True
-    app.run(threaded=True, host='0.0.0.0', port=5000)
+# if __name__ == '__main__':
+#     # threaded option to enable muptiple instances for multiple user access support (?!?!)
+#     app.debug = True
+#     app.run(threaded=True, host='0.0.0.0', port=5000)
