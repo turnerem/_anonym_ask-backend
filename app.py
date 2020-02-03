@@ -13,9 +13,11 @@ app = Flask(__name__)
 db_password = 'dancingb'
 db_name = 'meetings'
 
-app.config["MONGO_URI"] = "mongodb+srv://douglashellowell:" + \
-    db_password + "@cluster0-wvchx.mongodb.net/" + db_name
-mongo = PyMongo(app)
+set_uri = "mongodb+srv://douglashellowell:meetings@cluster0-wvchx.mongodb.net/dancingb"
+
+# app.config["MONGO_URI"] = "mongodb+srv://douglashellowell:" + \
+#     db_password + "@cluster0-wvchx.mongodb.net/" + db_name
+mongo = PyMongo(app, uri=set_uri)
 
 # On root request
 @app.route('/api', methods=['POST'])
@@ -46,9 +48,10 @@ def add_session(user_name):
     if(request.method == 'GET'):
         print('targetting collection')
         target_collection = mongo.db[user_name]
-        print('targetted collection')
+        print('targetted collection', target_collection)
 
         cursor_obj = target_collection.find({}, {'_id': 0})
+        print('the cursor object:', cursor_obj)
         result = []
         for x in cursor_obj:
             print('in loop?')
