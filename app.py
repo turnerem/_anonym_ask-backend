@@ -13,7 +13,7 @@ app = Flask(__name__)
 db_password = 'dancingb'
 db_name = 'meetings'
 
-set_uri = "mongodb+srv://douglashellowell:DancingB@cluster0-wvchx.mongodb.net/meetings"
+set_uri = "mongodb+srv://douglashellowell:dancingb@cluster0-wvchx.mongodb.net/meetings"
 
 # app.config["MONGO_URI"] = "mongodb+srv://douglashellowell:" + \
 #     db_password + "@cluster0-wvchx.mongodb.net/" + db_name
