@@ -8,7 +8,7 @@ from flask_cors import CORS, cross_origin
 import json
 
 app = Flask(__name__)
-cors = CORS(app)
+# cors = CORS(app)
 
 db_password = 'dancingb'
 db_name = 'meetings'
@@ -19,7 +19,7 @@ mongo = PyMongo(app)
 
 # On root request
 @app.route('/api', methods=['POST'])
-@cross_origin()
+# @cross_origin()
 def add_new_user():
 
     new_user = json.loads(request.data)
@@ -40,13 +40,16 @@ def add_new_user():
 
 
 @app.route('/api/<user_name>', methods=['GET', 'POST'])
-@cross_origin()
+# @cross_origin()
 def add_session(user_name):
+    print('we get request')
     if(request.method == 'GET'):
+        print('targetting collection')
         target_collection = mongo.db[user_name]
         cursor_obj = target_collection.find({}, {'_id': 0})
         result = []
         for x in cursor_obj:
+            print('in loop?')
             result.append(x)
         return jsonify({'status': 200, 'data': result[0] if len(result) > 0 else []})
 
@@ -63,7 +66,7 @@ def add_session(user_name):
             return jsonify({"status": 400})
 
 @app.route('/api/<user_name>', methods=['DELETE'])
-@cross_origin()
+# @cross_origin()
 def delete_account(user_name):
     names = mongo.db.collection_names()
     userAlreadyExists = names.count(user_name) > 0
@@ -75,7 +78,7 @@ def delete_account(user_name):
 
 
 @app.route('/api/<user_name>/<session_name>', methods=['GET', 'PATCH'])
-@cross_origin()
+# @cross_origin()
 def get_session(user_name, session_name):
     if (request.method == 'GET'):
         target_collection = mongo.db[user_name]
