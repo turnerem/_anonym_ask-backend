@@ -50,7 +50,8 @@ def add_session(user_name):
         target_collection = mongo.db[user_name]
         print('targetted collection', target_collection)
 
-        cursor_obj = target_collection.find({}, {'_id': 0})
+        # cursor_obj = target_collection.find({}, {'_id': 0})
+        cursor_obj = target_collection.find()
         print('the cursor object:', cursor_obj, dir(cursor_obj))
         
         result = []
