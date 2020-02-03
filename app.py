@@ -48,7 +48,7 @@ def add_session(user_name):
         result = []
         for x in cursor_obj:
             result.append(x)
-        return jsonify({'status': 200, 'data': result[0]})
+        return jsonify({'status': 200, 'data': result[0] if len(result) > 0 else []})
 
     elif(request.method == 'POST'):
         new_session = json.loads(request.data)
@@ -117,7 +117,7 @@ def get_session(user_name, session_name):
 
 
 
-# if __name__ == '__main__':
-#     # threaded option to enable muptiple instances for multiple user access support (?!?!)
-#     app.debug = True
-#     app.run(threaded=True, host='0.0.0.0', port=5000)
+if __name__ == '__main__':
+    # threaded option to enable muptiple instances for multiple user access support (?!?!)
+    app.debug = True
+    app.run(threaded=True, host='0.0.0.0', port=5000)
