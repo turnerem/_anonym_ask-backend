@@ -42,7 +42,7 @@ def add_new_user():
 @app.route('/api/<user_name>', methods=['GET', 'POST'])
 # @cross_origin()
 def add_session(user_name):
-    print('we get request')
+    # print('we get request')
     if(request.method == 'GET'):
         print('targetting collection')
         target_collection = mongo.db[user_name]
