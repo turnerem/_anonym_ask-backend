@@ -51,7 +51,8 @@ def add_session(user_name):
         print('targetted collection', target_collection)
 
         cursor_obj = target_collection.find({}, {'_id': 0})
-        print('the cursor object:', cursor_obj)
+        print('the cursor object:', cursor_obj.next())
+        
         result = []
         for x in cursor_obj:
             print('in loop?')
