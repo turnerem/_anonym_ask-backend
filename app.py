@@ -46,6 +46,8 @@ def add_session(user_name):
     if(request.method == 'GET'):
         print('targetting collection')
         target_collection = mongo.db[user_name]
+        print('targetted collection')
+
         cursor_obj = target_collection.find({}, {'_id': 0})
         result = []
         for x in cursor_obj:
