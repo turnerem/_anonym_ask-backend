@@ -5,10 +5,11 @@ from flask import Flask, request, jsonify
 import pymongo
 from flask_pymongo import PyMongo
 from flask_cors import CORS, cross_origin
+# from flask_socketio import SocketIO, join_room
 import json
 
 app = Flask(__name__)
-# cors = CORS(app)
+CORS(app, resources={r'/api/*': {'origins': '*'}})
 
 db_password = 'dancingb'
 db_name = 'meetings'
@@ -42,7 +43,7 @@ def add_new_user():
 
 
 @app.route('/api/<user_name>', methods=['GET', 'POST'])
-# @cross_origin()
+@cross_origin()
 def add_session(user_name):
     # print('we get request')
     if(request.method == 'GET'):
@@ -50,15 +51,16 @@ def add_session(user_name):
         target_collection = mongo.db[user_name]
         print('targetted collection', target_collection)
 
-        # cursor_obj = target_collection.find({}, {'_id': 0})
-        cursor_obj = target_collection.find()
+        cursor_obj = target_collection.find({}, {'_id': 0})
+        # cursor_obj = target_collection.find()
         print('the cursor object:', cursor_obj, dir(cursor_obj))
 
         result = []
         for x in cursor_obj:
             print('in loop?')
             result.append(x)
-        return jsonify({'status': 200, 'data': result[0] if len(result) > 0 else []})
+        print('\n\n\n\n\nthe result', result)
+        return jsonify(result[0] if len(result) > 0 else {})
 
     elif(request.method == 'POST'):
         new_session = json.loads(request.data)

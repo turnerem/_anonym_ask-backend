@@ -1,25 +1,16 @@
 import os
-from app import app
-# import unittest
-import pytest
+import app
+import unittest
+# import pytest
 import json
 import pprint
-
-@pytest.fixture
-def app():
-  app.app.testing = True
-  yield app
-
-@pytest.fixture
-def client(app):
-  return app.test_client()
 
 
 class AppTests( unittest.TestCase ):
   
-  # def setUp(self):
-  #   app.app.testing = True
-  #   self.app = app.app.test_client()
+  def setUp(self):
+    app.app.testing = True
+    self.app = app.app.test_client()
 
   # def test_api_username_get(self):
   #   result = self.app.get('/api/JessJelly')
