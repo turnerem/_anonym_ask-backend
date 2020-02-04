@@ -11,8 +11,6 @@ import json
 app = Flask(__name__)
 CORS(app, resources={r'/api/*': {'origins': '*'}})
 
-db_password = 'dancingb'
-db_name = 'meetings'
 
 set_uri = "mongodb+srv://douglashellowell:dancingb@cluster0-wvchx.mongodb.net/meetings"
 
@@ -53,7 +51,7 @@ def add_session(user_name):
 
         cursor_obj = target_collection.find({}, {'_id': 0})
         # cursor_obj = target_collection.find()
-        print('the cursor object:', cursor_obj, dir(cursor_obj))
+        print('the cursor object')
         
         result = []
         for x in cursor_obj:
@@ -89,6 +87,7 @@ def delete_account(user_name):
 @app.route('/api/<user_name>/<session_name>', methods=['GET', 'PATCH'])
 # @cross_origin()
 def get_session(user_name, session_name):
+    print('session name', session_name, user_name)
     if (request.method == 'GET'):
         target_collection = mongo.db[user_name]
         cursor_obj = target_collection.find(
@@ -98,7 +97,8 @@ def get_session(user_name, session_name):
         result = []
         for x in cursor_obj:
             result.append(x)
-            return jsonify(result[0])
+        print('\n\nA session?', result)
+        return jsonify(result[0])
     elif (request.method == 'PATCH'):
         new_session = json.loads(request.data)
         target_collection = mongo.db[user_name]
