@@ -53,7 +53,7 @@ def add_session(user_name):
         # cursor_obj = target_collection.find({}, {'_id': 0})
         cursor_obj = target_collection.find()
         print('the cursor object:', cursor_obj, dir(cursor_obj))
-        
+
         result = []
         for x in cursor_obj:
             print('in loop?')
@@ -72,6 +72,7 @@ def add_session(user_name):
         else:
             return jsonify({"status": 400})
 
+
 @app.route('/api/<user_name>', methods=['DELETE'])
 # @cross_origin()
 def delete_account(user_name):
@@ -81,7 +82,7 @@ def delete_account(user_name):
         del_collection = mongo.db[user_name].drop()
         return jsonify({"status": 204})
     else:
-      return jsonify({"status": 404})
+        return jsonify({"status": 404})
 
 
 @app.route('/api/<user_name>/<session_name>', methods=['GET', 'PATCH'])
@@ -117,14 +118,13 @@ def get_session(user_name, session_name):
 #         target_collection = mongo.db[user_name]
 #         result = target_collection.update_one(
 #             {
-#                 "user_name": user_name, 
+#                 "user_name": user_name,
 #                 "sessions.session_name": session_name,
 #                 "sessions.questions": question_id
 #             },
 #             {"$set": {"sessions.$.questions": new_answers}}
 #         )
 #         return jsonify({"Did work? ": result.modified_count})
-
 
 
 if __name__ == '__main__':
