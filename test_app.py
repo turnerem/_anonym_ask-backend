@@ -3,7 +3,7 @@ from app import app
 # import unittest
 import pytest
 import json
-from test_data import a_session
+from test_data import a_session, a_session_patch
 
 @pytest.fixture
 def client():
@@ -69,6 +69,16 @@ def test_get_session(client):
   resp = client.get('/api/Mary/Octopus')
   assert '404' in resp.status
 
+def test_patch_session(client):
+  """PATCH session"""
+  resp = client.patch('/api/Kite/Painting cars', data=json.dumps(a_session_patch))
+  assert '200' in resp.status
+  resp = client.get('/api/Kite/Painting cars')
+  session = json.loads(resp.data)
+  ans_samp = session['questions'][0]['answers']
+  print('\n\nanswers', ans_samp, 'yes:', ans_samp['Yes'])
+  assert ans_samp['Yes'] == 6 
+  assert ans_samp['No'] == 1
   
 # class AppTests( unittest.TestCase ):
   

@@ -92,7 +92,8 @@ def get_session(user_name, session_name):
     for x in cursor_obj:
         result.append(x)
     if len(result) > 0:
-        return result[0], 200
+        # print('\n\nget a single sesh', result[0]['sessions'][0])
+        return result[0]['sessions'][0], 200
     elif not user_exists(mongo.db, user_name):
         return {'msg': 'User Not Found'}, 404
     else:
