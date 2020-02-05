@@ -13,6 +13,7 @@ flask-pymongo = "*"
 dnspython = "*"
 gunicorn = "*"
 flask-cors = "*"
+pytest = "*"
 
 [requires]
 python_version = "3.7"
