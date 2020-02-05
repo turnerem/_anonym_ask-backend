@@ -7,16 +7,16 @@ from flask_pymongo import PyMongo
 from flask_cors import CORS, cross_origin
 from flask_socketio import SocketIO, join_room, leave_room, send, emit
 import json
+from private_configs import MONGO_URI
+
 
 
 app = Flask(__name__)
 CORS(app)
 socketio = SocketIO(app, cors_allowed_origins='*')
 
-db_password = 'dancingb'
-db_name = 'meetings'
 
-set_uri = "mongodb+srv://douglashellowell:dancingb@cluster0-wvchx.mongodb.net/meetings"
+set_uri = MONGO_URI
 
 # app.config["MONGO_URI"] = "mongodb+srv://douglashellowell:" + \
 #     db_password + "@cluster0-wvchx.mongodb.net/" + db_name
@@ -30,7 +30,7 @@ def add_new_user():
 
     new_user = json.loads(request.data)
     # does username already exist?
-    names = mongo.db.collection_names()
+    names = mongo.db.list_collection_names()
     userAlreadyExists = names.count(new_user['user_name']) > 0
     # {username: 'humanoid_gregory'}
     # print(new_user)
@@ -39,7 +39,6 @@ def add_new_user():
         return jsonify({"status": 409, "msg": "Please provide unique username"})
     else:
         new_user['sessions'] = []
-        pp.pprint(new_user)
         target_collection = mongo.db[new_user['user_name']]
         result = target_collection.insert_one(new_user)
         return jsonify({"status": 201, "insert_id": str(result.inserted_id)})
@@ -56,8 +55,13 @@ def add_session(user_name):
 
         cursor_obj = target_collection.find({}, {'_id': 0})
         # cursor_obj = target_collection.find()
+<<<<<<< HEAD:app/app.py
         print('the cursor object:', cursor_obj, dir(cursor_obj))
 
+=======
+        print('the cursor object')
+        
+>>>>>>> 2d4d7bd9c92ce156e451e000c3f3a9c5ce7ea1c1:app.py
         result = []
         for x in cursor_obj:
             print('in loop?')
@@ -93,6 +97,7 @@ def delete_account(user_name):
 @app.route('/api/<user_name>/<session_name>', methods=['GET', 'PATCH'])
 # @cross_origin()
 def get_session(user_name, session_name):
+    print('session name', session_name, user_name)
     if (request.method == 'GET'):
         target_collection = mongo.db[user_name]
         cursor_obj = target_collection.find(
@@ -102,7 +107,8 @@ def get_session(user_name, session_name):
         result = []
         for x in cursor_obj:
             result.append(x)
-            return jsonify(result[0])
+        print('\n\nA session?', result)
+        return jsonify(result[0])
     elif (request.method == 'PATCH'):
         new_session = json.loads(request.data)
         target_collection = mongo.db[user_name]
@@ -133,6 +139,6 @@ def get_session(user_name, session_name):
 
 
 if __name__ == '__main__':
-    # threaded option to enable muptiple instances for multiple user access support (?!
+    # threaded option to enable muptiple instances for multiple user access support (?!?!)
     app.debug = True
     app.run(threaded=True, host='0.0.0.0', port=5000)

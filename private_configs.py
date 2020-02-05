@@ -1,0 +1,1 @@
+MONGO_URI = "mongodb+srv://douglashellowell:dancingb@cluster0-wvchx.mongodb.net/meetings"
