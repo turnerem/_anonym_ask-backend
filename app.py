@@ -44,6 +44,12 @@ def send_answer(data, methods=['GET', 'POST']):
     print('\nanswer sent!\n')
     socketio.emit('answer to presenter', data)
 
+@socketio.on('text given')
+def send_text_answer(data, method=['GET', 'POST']):
+    print('\ntext answer sent!\n')
+    print(str(data))
+    socketio.emit('text to presenter', data)
+
 # On root request
 @app.route('/api', methods=['POST'])
 def add_new_user():
@@ -130,24 +136,6 @@ def get_session(user_name, session_name):
             {"$set": {"sessions.$": new_session}}
         )
         return jsonify({"Did work? ": result.modified_count})
-
-# @app.route('/api/<user_name>/<session_name>', methods=['DELETE'])
-# def delete_session(user_name, session_name):
-
-
-# @app.route('/api/<user_name>/<session_name>/<question_id>', methods=['PATCH'])
-# def update_question(user_name, session_name, question_id):
-#         new_answers = json.loads(request.data)
-#         target_collection = mongo.db[user_name]
-#         result = target_collection.update_one(
-#             {
-#                 "user_name": user_name,
-#                 "sessions.session_name": session_name,
-#                 "sessions.questions": question_id
-#             },
-#             {"$set": {"sessions.$.questions": new_answers}}
-#         )
-#         return jsonify({"Did work? ": result.modified_count})
 
 
 if __name__ == '__main__':
