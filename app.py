@@ -26,7 +26,7 @@ mongo = PyMongo(app, uri=set_uri)
 # @cross_origin()
 def add_new_user():
     new_user = json.loads(request.data)
-    if user_exists(mongo.db, new_user['user_name']):
+    if not user_exists(mongo.db, new_user['user_name']):
         return {"msg": "Please provide unique username"}, 409
     else:
         new_user['sessions'] = []
@@ -50,9 +50,7 @@ def get_sessions(user_name):
 @app.route('/api/<user_name>', methods=['DELETE'])
 # @cross_origin()
 def delete_account(user_name):
-    names = mongo.db.list_collection_names()
-    userAlreadyExists = names.count(user_name) > 0
-    if (userAlreadyExists):
+    if (user_exists(mongo.db, user_name)):
         del_collection = mongo.db[user_name].drop()
         return {'user_name': user_name}, 204
     else:
