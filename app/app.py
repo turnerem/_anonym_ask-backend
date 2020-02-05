@@ -5,11 +5,13 @@ from flask import Flask, request, jsonify
 import pymongo
 from flask_pymongo import PyMongo
 from flask_cors import CORS, cross_origin
-# from flask_socketio import SocketIO, join_room
+from flask_socketio import SocketIO, join_room, leave_room, send, emit
 import json
 
+
 app = Flask(__name__)
-CORS(app, resources={r'/api/*': {'origins': '*'}})
+CORS(app)
+socketio = SocketIO(app, cors_allowed_origins='*')
 
 db_password = 'dancingb'
 db_name = 'meetings'
@@ -19,6 +21,7 @@ set_uri = "mongodb+srv://douglashellowell:dancingb@cluster0-wvchx.mongodb.net/me
 # app.config["MONGO_URI"] = "mongodb+srv://douglashellowell:" + \
 #     db_password + "@cluster0-wvchx.mongodb.net/" + db_name
 mongo = PyMongo(app, uri=set_uri)
+
 
 # On root request
 @app.route('/api', methods=['POST'])
