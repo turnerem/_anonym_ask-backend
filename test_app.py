@@ -76,9 +76,15 @@ def test_patch_session(client):
   resp = client.get('/api/Kite/Painting cars')
   session = json.loads(resp.data)
   ans_samp = session['questions'][0]['answers']
-  print('\n\nanswers', ans_samp, 'yes:', ans_samp['Yes'])
   assert ans_samp['Yes'] == 6 
   assert ans_samp['No'] == 1
+
+def test_delete_session(client):
+  """DELETE session"""
+  resp = client.delete('/api/Kite/Painting cars')
+  assert '204' in resp.status
+  resp = client.delete('/api/Kite/Painting Mars')
+  assert '404' in resp.status
   
 # class AppTests( unittest.TestCase ):
   

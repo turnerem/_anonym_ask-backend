@@ -114,8 +114,17 @@ def patch_session(user_name, session_name):
     )
     return {}, 200
 
-# @app.route('/api/<user_name>/<session_name>', methods=['DELETE'])
-# def delete_session(user_name, session_name):
+
+@app.route('/api/<user_name>/<session_name>', methods=['DELETE'])
+def delete_session(user_name, session_name):
+    target_collection = mongo.db[user_name]
+    result = target_collection.delete_one(
+        {"user_name": user_name, "sessions.session_name": session_name}
+    )
+    if result.deleted_count == 1:
+      return {'session_name': session_name}, 204
+    else: 
+        return {'msg': 'Not Found'}, 404
 
 
 if __name__ == '__main__':
