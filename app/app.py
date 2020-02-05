@@ -7,12 +7,14 @@ from flask_pymongo import PyMongo
 from flask_cors import CORS, cross_origin
 # from flask_socketio import SocketIO, join_room
 import json
+from private_configs import MONGO_URI
+
 
 app = Flask(__name__)
 CORS(app, resources={r'/api/*': {'origins': '*'}})
 
 
-set_uri = "mongodb+srv://douglashellowell:dancingb@cluster0-wvchx.mongodb.net/meetings"
+set_uri = MONGO_URI
 
 # app.config["MONGO_URI"] = "mongodb+srv://douglashellowell:" + \
 #     db_password + "@cluster0-wvchx.mongodb.net/" + db_name
@@ -25,7 +27,7 @@ def add_new_user():
 
     new_user = json.loads(request.data)
     # does username already exist?
-    names = mongo.db.collection_names()
+    names = mongo.db.list_collection_names()
     userAlreadyExists = names.count(new_user['user_name']) > 0
     # {username: 'humanoid_gregory'}
     # print(new_user)
@@ -34,7 +36,6 @@ def add_new_user():
         return jsonify({"status": 409, "msg": "Please provide unique username"})
     else:
         new_user['sessions'] = []
-        pp.pprint(new_user)
         target_collection = mongo.db[new_user['user_name']]
         result = target_collection.insert_one(new_user)
         return jsonify({"status": 201, "insert_id": str(result.inserted_id)})
