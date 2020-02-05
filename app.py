@@ -23,9 +23,28 @@ set_uri = MONGO_URI
 mongo = PyMongo(app, uri=set_uri)
 
 
+@socketio.on('presenter prompt')
+def prompt_question(data, methods=['GET', 'POST']):
+    print('\n')
+    print(data)
+    print('\n')
+    print('sending to audience')
+    socketio.emit('incoming question', data)
+
+
+@socketio.on('end prompt')
+def end_prompt(data, methods=['GET', 'POST']):
+    print('\n')
+    print('end prompt signal sent! \n')
+    socketio.emit('end question')
+
+@socketio.on('answer given')
+def send_answer(data, methods=['GET', 'POST']):
+    print('\nanswer sent!\n')
+    socketio.emit('answer to presenter', data)
+
 # On root request
 @app.route('/api', methods=['POST'])
-# @cross_origin()
 def add_new_user():
 
     new_user = json.loads(request.data)
@@ -45,7 +64,6 @@ def add_new_user():
 
 
 @app.route('/api/<user_name>', methods=['GET', 'POST'])
-@cross_origin()
 def add_session(user_name):
     # print('we get request')
     if(request.method == 'GET'):
@@ -55,13 +73,9 @@ def add_session(user_name):
 
         cursor_obj = target_collection.find({}, {'_id': 0})
         # cursor_obj = target_collection.find()
-<<<<<<< HEAD:app/app.py
         print('the cursor object:', cursor_obj, dir(cursor_obj))
 
-=======
-        print('the cursor object')
         
->>>>>>> 2d4d7bd9c92ce156e451e000c3f3a9c5ce7ea1c1:app.py
         result = []
         for x in cursor_obj:
             print('in loop?')
@@ -83,7 +97,6 @@ def add_session(user_name):
 
 
 @app.route('/api/<user_name>', methods=['DELETE'])
-# @cross_origin()
 def delete_account(user_name):
     names = mongo.db.collection_names()
     userAlreadyExists = names.count(user_name) > 0
@@ -95,7 +108,6 @@ def delete_account(user_name):
 
 
 @app.route('/api/<user_name>/<session_name>', methods=['GET', 'PATCH'])
-# @cross_origin()
 def get_session(user_name, session_name):
     print('session name', session_name, user_name)
     if (request.method == 'GET'):
@@ -123,7 +135,6 @@ def get_session(user_name, session_name):
 
 
 # @app.route('/api/<user_name>/<session_name>/<question_id>', methods=['PATCH'])
-# @cross_origin()
 # def update_question(user_name, session_name, question_id):
 #         new_answers = json.loads(request.data)
 #         target_collection = mongo.db[user_name]
