@@ -8,6 +8,7 @@ from flask_cors import CORS, cross_origin
 from flask_socketio import SocketIO, join_room, leave_room, send, emit
 import json
 from private_configs import MONGO_URI
+import eventlet
 
 
 
@@ -20,7 +21,7 @@ set_uri = MONGO_URI
 
 # app.config["MONGO_URI"] = "mongodb+srv://douglashellowell:" + \
 #     db_password + "@cluster0-wvchx.mongodb.net/" + db_name
-mongo = PyMongo(app, uri=set_uri)
+mongo = PyMongo(app, uri=set_uri )
 
 
 @socketio.on('presenter prompt')
@@ -152,4 +153,5 @@ def get_session(user_name, session_name):
 if __name__ == '__main__':
     # threaded option to enable muptiple instances for multiple user access support (?!?!)
     app.debug = True
-    app.run(threaded=True, host='0.0.0.0', port=5000)
+    # app.run(threaded=True, host='0.0.0.0', port=5000)
+    socketio.run(app, host='0.0.0.0', port=5000)
