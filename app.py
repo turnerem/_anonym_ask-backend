@@ -16,6 +16,7 @@ from utils.utils import user_exists, validate_sesh_struc
 app = Flask(__name__)
 CORS(app)
 socketio = SocketIO(app, cors_allowed_origins='*')
+# eventlet.monkey_patch()
 
 
 set_uri = MONGO_URI
@@ -68,7 +69,9 @@ def get_sessions(user_name):
     target_collection = mongo.db[user_name]
     cursor_obj = target_collection.find({}, {'_id': 0})
     result = []
+    print(cursor_obj)
     for x in cursor_obj:
+        print('ellele')
         result.append(x)
     if (len(result) > 0):
         return result[0], 200
