@@ -19,9 +19,6 @@ socketio = SocketIO(app, cors_allowed_origins='*')
 
 
 set_uri = MONGO_URI
-
-# app.config["MONGO_URI"] = "mongodb+srv://douglashellowell:" + \
-#     db_password + "@cluster0-wvchx.mongodb.net/" + db_name
 mongo = PyMongo(app, uri=set_uri )
 
 
