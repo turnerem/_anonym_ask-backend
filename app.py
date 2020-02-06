@@ -5,25 +5,54 @@ from flask import Flask, request
 import pymongo
 from flask_pymongo import PyMongo
 from flask_cors import CORS, cross_origin
-# from flask_socketio import SocketIO, join_room
+from flask_socketio import SocketIO, join_room, leave_room, send, emit
 import json
 from private_configs import MONGO_URI
+import eventlet
+
 from utils.utils import user_exists, validate_sesh_struc
 
 
 app = Flask(__name__)
-CORS(app, resources={r'/api/*': {'origins': '*'}})
+CORS(app)
+socketio = SocketIO(app, cors_allowed_origins='*')
 
 
 set_uri = MONGO_URI
 
 # app.config["MONGO_URI"] = "mongodb+srv://douglashellowell:" + \
 #     db_password + "@cluster0-wvchx.mongodb.net/" + db_name
-mongo = PyMongo(app, uri=set_uri)
+mongo = PyMongo(app, uri=set_uri )
+
+
+@socketio.on('presenter prompt')
+def prompt_question(data, methods=['GET', 'POST']):
+    print('\n')
+    print(data)
+    print('\n')
+    print('sending to audience')
+    socketio.emit('incoming question', data)
+
+
+@socketio.on('end prompt')
+def end_prompt(data, methods=['GET', 'POST']):
+    print('\n')
+    print('end prompt signal sent! \n')
+    socketio.emit('end question')
+
+@socketio.on('answer given')
+def send_answer(data, methods=['GET', 'POST']):
+    print('\nanswer sent!\n')
+    socketio.emit('answer to presenter', data)
+
+@socketio.on('text given')
+def send_text_answer(data, method=['GET', 'POST']):
+    print('\ntext answer sent!\n')
+    print(str(data))
+    socketio.emit('text to presenter', data)
 
 # On root request
 @app.route('/api', methods=['POST'])
-# @cross_origin()
 def add_new_user():
     new_user = json.loads(request.data)
     if user_exists(mongo.db, new_user['user_name']):
@@ -47,8 +76,8 @@ def get_sessions(user_name):
     else: 
         return {'msg': 'User Not Found'}, 404
 
+
 @app.route('/api/<user_name>', methods=['DELETE'])
-# @cross_origin()
 def delete_account(user_name):
     if (user_exists(mongo.db, user_name)):
         del_collection = mongo.db[user_name].drop()
@@ -128,4 +157,5 @@ def delete_session(user_name, session_name):
 if __name__ == '__main__':
     # threaded option to enable muptiple instances for multiple user access support (?!?!)
     app.debug = True
-    app.run(threaded=True, host='0.0.0.0', port=5000)
+    # app.run(threaded=True, host='0.0.0.0', port=5000)
+    socketio.run(app, host='0.0.0.0', port=5000)
