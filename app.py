@@ -157,5 +157,6 @@ if __name__ == '__main__':
     # threaded option to enable muptiple instances for multiple user access support (?!?!)
     app.debug = True
     port = int(os.environ.get('PORT', 5000))
+    print(port)
     # app.run(threaded=True, host='0.0.0.0', port=5000)
     socketio.run(app, host='0.0.0.0', port=port)
