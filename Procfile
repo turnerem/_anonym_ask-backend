@@ -1,1 +1,1 @@
-web: gunicorn -k eventlet app:app --spew
+web: gunicorn app:app

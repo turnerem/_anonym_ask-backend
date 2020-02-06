@@ -9,7 +9,6 @@ from flask_socketio import SocketIO, join_room, leave_room, send, emit
 import json
 from private_configs import MONGO_URI
 import eventlet
-import os
 
 from utils.utils import user_exists, validate_sesh_struc
 
@@ -156,7 +155,5 @@ def delete_session(user_name, session_name):
 if __name__ == '__main__':
     # threaded option to enable muptiple instances for multiple user access support (?!?!)
     app.debug = True
-    port = int(os.environ.get('PORT', 5000))
-    print(port)
     # app.run(threaded=True, host='0.0.0.0', port=5000)
-    socketio.run(app, host='0.0.0.0', port=port)
+    socketio.run(app, host='0.0.0.0', port=5000)
