@@ -21,7 +21,7 @@ def validate_sesh_struc(session):
     return False
   
   ans_set = a_question['answers']
-  chk_ans = isinstance(ans_set, dict)
+  chk_ans = isinstance(ans_set, dict) or isinstance(ans_set, list)
   ans_val_list = ans_set.values()
   chk_ans_vals = all([isinstance(val, int) for val in ans_val_list])
   if not (chk_ans_vals & chk_ans_vals):
