@@ -9,6 +9,7 @@ from flask_socketio import SocketIO, join_room, leave_room, send, emit
 import json
 from private_configs import MONGO_URI
 import eventlet
+import os
 
 from utils.utils import user_exists, validate_sesh_struc
 
@@ -19,7 +20,7 @@ socketio = SocketIO(app, cors_allowed_origins='*')
 
 
 set_uri = MONGO_URI
-mongo = PyMongo(app, uri=set_uri )
+mongo = PyMongo(app, uri=set_uri)
 
 
 @socketio.on('presenter prompt')
@@ -37,10 +38,12 @@ def end_prompt(data, methods=['GET', 'POST']):
     print('end prompt signal sent! \n')
     socketio.emit('end question')
 
+
 @socketio.on('answer given')
 def send_answer(data, methods=['GET', 'POST']):
     print('\nanswer sent!\n')
     socketio.emit('answer to presenter', data)
+
 
 @socketio.on('text given')
 def send_text_answer(data, method=['GET', 'POST']):
@@ -70,7 +73,7 @@ def get_sessions(user_name):
         result.append(x)
     if (len(result) > 0):
         return result[0], 200
-    else: 
+    else:
         return {'msg': 'User Not Found'}, 404
 
 
@@ -80,14 +83,14 @@ def delete_account(user_name):
         del_collection = mongo.db[user_name].drop()
         return {'user_name': user_name}, 204
     else:
-      return {'msg': 'User Not Found'}, 404
+        return {'msg': 'User Not Found'}, 404
 
 
 @app.route('/api/<user_name>', methods=['POST'])
 def add_session(user_name):
     new_session = json.loads(request.data)
     # ensure new session is in correct format
-    
+
     if not validate_sesh_struc(new_session):
         return {'msg': 'Bad Request'}, 400
 
@@ -101,7 +104,6 @@ def add_session(user_name):
     )
     if (result.modified_count == 1):
         return {'sessions': new_session}, 200
-
 
 
 @app.route('/api/<user_name>/<session_name>', methods=['GET'])
@@ -146,13 +148,14 @@ def delete_session(user_name, session_name):
         {"user_name": user_name, "sessions.session_name": session_name}
     )
     if result.deleted_count == 1:
-      return {'session_name': session_name}, 204
-    else: 
+        return {'session_name': session_name}, 204
+    else:
         return {'msg': 'Not Found'}, 404
 
 
 if __name__ == '__main__':
     # threaded option to enable muptiple instances for multiple user access support (?!?!)
     app.debug = True
+    port = int(os.environ.get('PORT', 5000))
     # app.run(threaded=True, host='0.0.0.0', port=5000)
-    socketio.run(app, host='0.0.0.0', port=5000)
+    socketio.run(app, host='0.0.0.0', port=port)
