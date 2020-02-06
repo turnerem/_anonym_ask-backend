@@ -1,7 +1,7 @@
 # export FLASK_APP=app.py
 # flask run --host=0.0.0.0 --port=5000
 
-from flask import Flask, request, jsonify
+from flask import Flask, request
 import pymongo
 from flask_pymongo import PyMongo
 from flask_cors import CORS, cross_origin
@@ -10,6 +10,7 @@ import json
 from private_configs import MONGO_URI
 import eventlet
 
+from utils.utils import user_exists, validate_sesh_struc
 
 
 app = Flask(__name__)
@@ -53,89 +54,104 @@ def send_text_answer(data, method=['GET', 'POST']):
 # On root request
 @app.route('/api', methods=['POST'])
 def add_new_user():
-
     new_user = json.loads(request.data)
-    # does username already exist?
-    names = mongo.db.list_collection_names()
-    userAlreadyExists = names.count(new_user['user_name']) > 0
-    # {username: 'humanoid_gregory'}
-    # print(new_user)
-    # print('attemting to add "sessions" list')
-    if (userAlreadyExists):
-        return jsonify({"status": 409, "msg": "Please provide unique username"})
+    if user_exists(mongo.db, new_user['user_name']):
+        return {"msg": "Please provide unique username"}, 409
     else:
         new_user['sessions'] = []
         target_collection = mongo.db[new_user['user_name']]
         result = target_collection.insert_one(new_user)
-        return jsonify({"status": 201, "insert_id": str(result.inserted_id)})
+        return {"insert_id": str(result.inserted_id)}, 201
 
 
-@app.route('/api/<user_name>', methods=['GET', 'POST'])
-def add_session(user_name):
-    # print('we get request')
-    if(request.method == 'GET'):
-        print('targetting collection')
-        target_collection = mongo.db[user_name]
-        print('targetted collection', target_collection)
-
-        cursor_obj = target_collection.find({}, {'_id': 0})
-        # cursor_obj = target_collection.find()
-        print('the cursor object:', cursor_obj, dir(cursor_obj))
-
-        
-        result = []
-        for x in cursor_obj:
-            print('in loop?')
-            result.append(x)
-        print('\n\n\n\n\nthe result', result)
-        return jsonify(result[0] if len(result) > 0 else {})
-
-    elif(request.method == 'POST'):
-        new_session = json.loads(request.data)
-        target_collection = mongo.db[user_name]
-        result = target_collection.update_one(
-            {"user_name": user_name},
-            {"$push": {'sessions': new_session}}
-        )
-        if (result.modified_count == 1):
-            return jsonify({"status": 200})
-        else:
-            return jsonify({"status": 400})
+@app.route('/api/<user_name>', methods=['GET'])
+def get_sessions(user_name):
+    target_collection = mongo.db[user_name]
+    cursor_obj = target_collection.find({}, {'_id': 0})
+    result = []
+    for x in cursor_obj:
+        result.append(x)
+    if (len(result) > 0):
+        return result[0], 200
+    else: 
+        return {'msg': 'User Not Found'}, 404
 
 
 @app.route('/api/<user_name>', methods=['DELETE'])
 def delete_account(user_name):
-    names = mongo.db.collection_names()
-    userAlreadyExists = names.count(user_name) > 0
-    if (userAlreadyExists):
+    if (user_exists(mongo.db, user_name)):
         del_collection = mongo.db[user_name].drop()
-        return jsonify({"status": 204})
+        return {'user_name': user_name}, 204
     else:
-        return jsonify({"status": 404})
+      return {'msg': 'User Not Found'}, 404
 
 
-@app.route('/api/<user_name>/<session_name>', methods=['GET', 'PATCH'])
+@app.route('/api/<user_name>', methods=['POST'])
+def add_session(user_name):
+    new_session = json.loads(request.data)
+    # ensure new session is in correct format
+    
+    if not validate_sesh_struc(new_session):
+        return {'msg': 'Bad Request'}, 400
+
+    if not user_exists(mongo.db, user_name):
+        return {"msg": "User Not Found"}, 409
+
+    target_collection = mongo.db[user_name]
+    result = target_collection.update_one(
+        {"user_name": user_name},
+        {"$push": {'sessions': new_session}}
+    )
+    if (result.modified_count == 1):
+        return {'sessions': new_session}, 200
+
+
+
+@app.route('/api/<user_name>/<session_name>', methods=['GET'])
+# @cross_origin()
 def get_session(user_name, session_name):
-    print('session name', session_name, user_name)
-    if (request.method == 'GET'):
-        target_collection = mongo.db[user_name]
-        cursor_obj = target_collection.find(
-            {'sessions.session_name': session_name},
-            {'_id': 0, 'sessions.$': 1}
-        )
-        result = []
-        for x in cursor_obj:
-            result.append(x)
-        print('\n\nA session?', result)
-        return jsonify(result[0])
-    elif (request.method == 'PATCH'):
-        new_session = json.loads(request.data)
-        target_collection = mongo.db[user_name]
-        result = target_collection.update_one(
-            {"user_name": user_name, "sessions.session_name": session_name},
-            {"$set": {"sessions.$": new_session}}
-        )
-        return jsonify({"Did work? ": result.modified_count})
+    target_collection = mongo.db[user_name]
+    cursor_obj = target_collection.find(
+        {'sessions.session_name': session_name},
+        {'_id': 0, 'sessions.$': 1}
+    )
+    result = []
+    for x in cursor_obj:
+        result.append(x)
+    if len(result) > 0:
+        # print('\n\nget a single sesh', result[0]['sessions'][0])
+        return result[0]['sessions'][0], 200
+    elif not user_exists(mongo.db, user_name):
+        return {'msg': 'User Not Found'}, 404
+    else:
+        return {'msg': 'Session Not Found'}, 404
+
+
+@app.route('/api/<user_name>/<session_name>', methods=['PATCH'])
+# @cross_origin()
+def patch_session(user_name, session_name):
+    updated_session = json.loads(request.data)
+    if not validate_sesh_struc(updated_session):
+        return {'msg': 'Bad Request'}, 400
+
+    target_collection = mongo.db[user_name]
+    result = target_collection.update_one(
+        {"user_name": user_name, "sessions.session_name": session_name},
+        {"$set": {"sessions.$": updated_session}}
+    )
+    return {}, 200
+
+
+@app.route('/api/<user_name>/<session_name>', methods=['DELETE'])
+def delete_session(user_name, session_name):
+    target_collection = mongo.db[user_name]
+    result = target_collection.delete_one(
+        {"user_name": user_name, "sessions.session_name": session_name}
+    )
+    if result.deleted_count == 1:
+      return {'session_name': session_name}, 204
+    else: 
+        return {'msg': 'Not Found'}, 404
 
 
 if __name__ == '__main__':
