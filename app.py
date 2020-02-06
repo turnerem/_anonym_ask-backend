@@ -26,7 +26,7 @@ mongo = PyMongo(app, uri=set_uri)
 # @cross_origin()
 def add_new_user():
     new_user = json.loads(request.data)
-    if not user_exists(mongo.db, new_user['user_name']):
+    if user_exists(mongo.db, new_user['user_name']):
         return {"msg": "Please provide unique username"}, 409
     else:
         new_user['sessions'] = []
